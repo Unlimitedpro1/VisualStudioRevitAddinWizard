@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catch the Falling Objects</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #87CEEB; /* Sky blue background */
+            overflow: hidden;
+        }
+        #gameContainer {
+            position: relative;
+            margin-top: 20px;
+        }
+        #gameCanvas {
+            border: 2px solid #000;
+            background-color: #fff;
+        }
+        #basket {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <img id="basket" src="https://via.placeholder.com/100" alt="Basket">
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const basket = document.getElementById('basket');
+
+        // Game variables
+        const basketWidth = basket.width;
+        const basketHeight = basket.height;
+        const objectWidth = 50;
+        const objectHeight = 50;
+        const objects = [];
+        let score = 0;
+
+        // Create a new falling object
+        function createObject() {
+            const x = Math.random() * (canvas.width - objectWidth);
+            const y = -objectHeight;
+            const speed = Math.random() * 2 + 1;
+            const img = new Image();
+            img.src = 'https://via.placeholder.com/50'; // Replace with Instagram image URL
+            objects.push({ x, y, speed, img });
+        }
+
+        // Update game objects
+        function update() {
+            for (let i = objects.length - 1; i >= 0; i--) {
+                const obj = objects[i];
+                obj.y += obj.speed;
+
+                // Check for collision with basket
+                if (
+                    obj.x < basket.offsetLeft + basketWidth &&
+                    obj.x + objectWidth > basket.offsetLeft &&
+                    obj.y < basket.offsetTop + basketHeight &&
+                    obj.y + objectHeight > basket.offsetTop
+                ) {
+                    objects.splice(i, 1); // Remove the object
+                    score++;
+                } else if (obj.y > canvas.height) {
+                    objects.splice(i, 1); // Remove the object
+                }
+            }
+        }
+
+        // Draw game objects
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            objects.forEach(obj => {
+                ctx.drawImage(obj.img, obj.x, obj.y, objectWidth, objectHeight);
+            });
+        }
+
+        // Main game loop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Control basket movement
+        document.addEventListener('mousemove', (e) => {
+            basket.style.left = e.clientX - basketWidth / 2 + 'px';
+            basket.style.top = e.clientY - basketHeight / 2 + 'px';
+        });
+
+        // Create new objects every second
+        setInterval(createObject, 1000);
+
+        // Start the game loop
+        gameLoop();
+    </script>
+</body>
+</html>
